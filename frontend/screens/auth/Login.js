@@ -19,11 +19,12 @@ const Login = ({navigation}) => {
          }
          console.log('Login data=',{email,password})
      
-         const {data}=await axios.post('http://192.168.1.104:6000/api/user/login',{ email,password})
+         const {data}=await axios.post('http://192.168.29.13:6000/api/user/login',{ email,password})
         alert(data )
         await AsyncStorage.setItem('@auth', JSON.stringify(data));
 
         Alert.alert("Login successfull");
+        navigation.navigate('Home');
       }
       catch(error){
         if (error.response && error.response.data && error.response.data.error === "Email incorrect" || "Incorrect password") {
@@ -59,7 +60,7 @@ const styles=StyleSheet.create({
     container:{
         flex:1,
         justifyContent:"center",
-        backgroundColor:"#e1d5c9"
+        backgroundColor:"#9AC8CD"
        
     },
     pageTitle:{
