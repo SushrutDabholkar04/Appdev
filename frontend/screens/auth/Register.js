@@ -20,7 +20,7 @@ const Register = ({navigation}) => {
          }
          console.log('Register data=',{email,password})
      
-         const {data}=await axios.post('http://192.168.29.13:6000/api/user/signup',{ email,password})
+         const {data}=await axios.post('http://192.168.1.104:6000/api/user/signup',{ email,password})
         alert(data )
         Alert.alert("Registered successfully");
         navigation.navigate('Home');

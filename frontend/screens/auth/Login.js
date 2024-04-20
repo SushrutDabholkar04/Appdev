@@ -19,7 +19,7 @@ const Login = ({navigation}) => {
          }
          console.log('Login data=',{email,password})
      
-         const {data}=await axios.post('http://192.168.29.13:6000/api/user/login',{ email,password})
+         const {data}=await axios.post('http://192.168.1.104:6000/api/user/login',{ email,password})
         alert(data )
         await AsyncStorage.setItem('@auth', JSON.stringify(data));
 

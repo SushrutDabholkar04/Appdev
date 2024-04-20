@@ -2,9 +2,39 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons'; 
 import axios from 'axios';
+import SearchResult from '../components/SearchResult';
 
 const Home = ({ route, navigation }) => {
     const [companies, setCompanies] = useState([]);
+   const [input,setInput]=useState("")
+   const [results,setResult]=useState([])
+   const searchCompanies = async () => {
+    const options = {
+        method: 'GET',
+        url: 'https://linkedin-data-scraper.p.rapidapi.com/search_jobs',
+        params: {
+            query: 'Software developer',
+            location: 'Europe',
+            page: '1'
+        },
+        headers: {
+            'X-RapidAPI-Key': '2e919a426dmsh3100cbe59a05659p1725e0jsne90fb62cbec1',
+            'X-RapidAPI-Host': 'linkedin-data-scraper.p.rapidapi.com'
+        }
+    };
+    
+    try {
+        const response = await axios.request(options);
+        const obj = response.data.response.jobs;
+        const filteredResults = obj.filter((company) => {
+            return company.companyName && company.companyName.toLowerCase().includes(input.toLowerCase());
+        });
+        console.log(filteredResults); // Log company names
+        setResult(filteredResults); // Set the results state here
+    } catch (error) {
+        console.error(error);
+    }
+}   
 
     const fetchCompanies = async () => {
         const options = {
@@ -30,17 +60,36 @@ const Home = ({ route, navigation }) => {
     useEffect(() => {
         fetchCompanies();
     }, []);
+    const handleChange = (value) => {
+        setInput(value);
+    }
+
+    const handleSearch = () => {
+        searchCompanies();
+    }
+
+
 
     return (
         <View style={styles.container}>
-            <View style={styles.searchContainer}>
-                <Ionicons name='search' size={24} color='#3F6CDF' />
-                <TextInput
-                    placeholder='Search for Jobs etc..'
-                    placeholderTextColor='#3F6CDF'
-                    style={styles.searchInput}
-                />
-            </View>
+        <View style={styles.searchContainer}>
+            <Ionicons name='search' size={24} color='#3F6CDF' />
+            <TextInput
+                placeholder='Search for Jobs etc..'
+                placeholderTextColor='#3F6CDF'
+                style={styles.searchInput}
+                value={input}
+                onChangeText={(value) => handleChange(value)}
+            />
+            <TouchableOpacity onPress={handleSearch}>
+                <Text>Search</Text>
+            </TouchableOpacity>
+        </View>
+
+        {results.length > 0 && (
+            <SearchResult results={results} />
+        )}
+                
 
             <View style={styles.header}>
                 <View style={styles.greetingContainer}>
