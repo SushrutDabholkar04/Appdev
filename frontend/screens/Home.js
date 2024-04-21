@@ -3,37 +3,39 @@ import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet } from 
 import Ionicons from 'react-native-vector-icons/Ionicons'; 
 import axios from 'axios';
 import SearchResult from '../components/SearchResult';
+import Navigation from '../components/Navigation';
 
 const Home = ({ route, navigation }) => {
     const [companies, setCompanies] = useState([]);
    const [input,setInput]=useState("")
-   const [results,setResult]=useState([])
+   const [results,setResults]=useState([])
+   const [companies1,setCompanies1]=useState([])
    const searchCompanies = async () => {
     const options = {
         method: 'GET',
         url: 'https://linkedin-data-scraper.p.rapidapi.com/search_jobs',
         params: {
-            query: 'Software developer',
-            location: 'Europe',
-            page: '1'
+          query: 'Software developer',
+          location: 'Europe',
+          page: '1'
         },
         headers: {
-            'X-RapidAPI-Key': '2e919a426dmsh3100cbe59a05659p1725e0jsne90fb62cbec1',
-            'X-RapidAPI-Host': 'linkedin-data-scraper.p.rapidapi.com'
+          'X-RapidAPI-Key': '885f253d0amshfbfa138878fdb78p1772fdjsna5ff4f7d2d00',
+          'X-RapidAPI-Host': 'linkedin-data-scraper.p.rapidapi.com'
         }
-    };
-    
-    try {
+      };
+      
+      try {
         const response = await axios.request(options);
         const obj = response.data.response.jobs;
         const filteredResults = obj.filter((company) => {
-            return company.companyName && company.companyName.toLowerCase().includes(input.toLowerCase());
+            return company.companyName && company.companyName.toLowerCase().startsWith(input.toLowerCase()) ;
         });
         console.log(filteredResults); // Log company names
-        setResult(filteredResults); // Set the results state here
-    } catch (error) {
-        console.error(error);
-    }
+        setResults(filteredResults); // Set the results state here
+      } catch (error) {
+          console.error(error);
+      }
 }   
 
     const fetchCompanies = async () => {
@@ -44,7 +46,7 @@ const Home = ({ route, navigation }) => {
                 company_name: 'Microsoft'
             },
             headers: {
-                'X-RapidAPI-Key': 'ab634b4853msh90f2ad65d56859dp1aab13jsn9fb8d6ef2fd1',
+                'X-RapidAPI-Key': '2e919a426dmsh3100cbe59a05659p1725e0jsne90fb62cbec1',
                 'X-RapidAPI-Host': 'indeed12.p.rapidapi.com'
             }
         };
@@ -57,6 +59,27 @@ const Home = ({ route, navigation }) => {
         }
     };
 
+    const fetchCompanies2=async()=>{
+        
+const options = {
+    method: 'GET',
+    url: 'https://indeed12.p.rapidapi.com/company/Ubisoft/jobs',
+    params: {start: '1'},
+    headers: {
+      'X-RapidAPI-Key': '2e919a426dmsh3100cbe59a05659p1725e0jsne90fb62cbec1',
+      'X-RapidAPI-Host': 'indeed12.p.rapidapi.com'
+    }
+  };
+  
+  try {
+      const response = await axios.request(options);
+      console.log(response.data);
+      setCompanies1(response.data.hits)
+  } catch (error) {
+      console.error(error);
+  }
+    }
+
     useEffect(() => {
         fetchCompanies();
     }, []);
@@ -68,10 +91,15 @@ const Home = ({ route, navigation }) => {
         searchCompanies();
     }
 
+    useEffect(()=>{
+        fetchCompanies2()
+    },[])
+
 
 
     return (
         <View style={styles.container}>
+            <View>
         <View style={styles.searchContainer}>
             <Ionicons name='search' size={24} color='#3F6CDF' />
             <TextInput
@@ -89,7 +117,7 @@ const Home = ({ route, navigation }) => {
         {results.length > 0 && (
             <SearchResult results={results} />
         )}
-                
+                </View>
 
             <View style={styles.header}>
                 <View style={styles.greetingContainer}>
@@ -99,44 +127,95 @@ const Home = ({ route, navigation }) => {
                 <Ionicons name='notifications-outline' size={22} color='#FFF' style={styles.bellIcon} />
             </View>
     
-            <View style={{ flex: 0.82, padding: 16 }}>
-                <Text style={{ marginVertical: 32, fontSize: 24, fontWeight: '600' }}>Recommended Companies</Text>
+            <View style={{ flex: 0.82, padding: 8 }}>
+    <Text style={{ marginVertical: 32, fontSize: 24, fontWeight: '600' }}>Recommended Companies</Text>
 
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                    {companies.map(company => (
-                        <TouchableOpacity
-                            key={company.id}
-                            style={{
-                                backgroundColor: '#FFF',
-                                padding: 16,
-                                borderRadius: 16,
-                                width: 300,
-                                marginRight: 16
-                            }}
-                        >
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                    <View style={{ marginLeft: 8 }}>
-                                        <Text style={{ fontSize: 16, fontWeight: '600' }}>{company.name}</Text>
-                                        <Text style={{ fontSize: 12, fontWeight: '400' }}>{company.locality}</Text>
-                                    </View>
-                                </View>
-                                <Ionicons name='bookmark-outline' size={24} color='#000' />
-                            </View>
+    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        {companies.map(company => (
+            <TouchableOpacity
+                key={company.id}
+                style={{
+                    backgroundColor: '#FFF',
+                    padding: 8, // Decreased padding
+                    borderRadius: 16,
+                    width: 250, // Adjusted width
+                    marginRight: 16,
+                    flexDirection: 'column', // Make the container a column
+                    justifyContent: 'flex-start', // Align children at the start vertically
+                    height:200
+                
+                }}
+            >
+                {/* Company Information */}
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <View style={{ marginLeft: 8 }}>
+                            <Text style={{ fontSize: 16, fontWeight: '600' }}>{company.name}</Text>
+                            <Text style={{ fontSize: 12, fontWeight: '400' }}>{company.locality}</Text>
+                        </View>
+                    </View>
+                    <Ionicons name='bookmark-outline' size={24} color='#000' />
+                </View>
+            
+                {/* Job Information */}
+                <Text style={{ marginTop: 12, fontSize: 16, fontWeight: '600' }}>company rank :{company.rank}</Text>
+                <Text style={{ fontSize: 12, fontWeight: '400' }}>Senior • Remote • Fulltime</Text>
+            
+                {/* Apply Now Button */}
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12, justifyContent: 'space-between' }}>
+                    <TouchableOpacity style={{ backgroundColor: '#3F6CDF', padding: 8, borderRadius: 16 }}>
+                        <Text style={{ color: '#FFF', fontSize: 14 }}>Apply Now</Text>
+                    </TouchableOpacity>
+                    <Text style={{ fontSize: 16, fontWeight: '500' }}>$100K/year</Text>
+                </View>
+            </TouchableOpacity>
+        ))}
+    </ScrollView>
+    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        {companies1.map(company => (
+            <TouchableOpacity
+                key={company.id}
+                style={{
+                    backgroundColor: '#FFF',
+                    padding: 8, // Decreased padding
+                    borderRadius: 16,
+                    width: 250, // Adjusted width
+                    marginRight: 16,
+                    flexDirection: 'column', // Make the container a column
+                    justifyContent: 'flex-start', // Align children at the start vertically
+                    height:200,
+                    marginTop:20
+                
+                }}
+            >
+                {/* Company Information */}
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <View style={{ marginLeft: 8 }}>
+                            <Text style={{ fontSize: 16, fontWeight: '600' }}>{company.title}</Text>
+                            <Text style={{ fontSize: 12, fontWeight: '400' }}>{company.locality}</Text>
+                        </View>
+                    </View>
+                    <Ionicons name='bookmark-outline' size={24} color='#000' />
+                </View>
+            
+                {/* Job Information */}
+                <Text style={{ marginTop: 12, fontSize: 16, fontWeight: '600' }}>Location :{company.location}</Text>
+                <Text style={{ fontSize: 12, fontWeight: '400' }}>Senior • Remote • Fulltime</Text>
+            
+                {/* Apply Now Button */}
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12, justifyContent: 'space-between' }}>
+                    <TouchableOpacity style={{ backgroundColor: '#3F6CDF', padding: 8, borderRadius: 16 }}>
+                        <Text style={{ color: '#FFF', fontSize: 14 }}>Apply Now</Text>
+                    </TouchableOpacity>
+                    <Text style={{ fontSize: 16, fontWeight: '500' }}>$100K/year</Text>
+                </View>
+            </TouchableOpacity>
+        ))}
+    </ScrollView>
+    <Navigation/>
 
-                            <Text style={{ marginTop: 16, fontSize: 18, fontWeight: '600' }}>UI Designer</Text>
-                            <Text style={{ fontSize: 12, fontWeight: '400' }}>Senior • Remote • Fulltime</Text>
-
-                            <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 16, justifyContent: 'space-between' }}>
-                                <TouchableOpacity style={{ backgroundColor: '#3F6CDF', padding: 12, borderRadius: 16 }}>
-                                    <Text style={{ color: '#FFF' }}>Apply Now</Text>
-                                </TouchableOpacity>
-                                <Text style={{ fontSize: 18, fontWeight: '500' }}>$100K/year</Text>
-                            </View>
-                        </TouchableOpacity>
-                    ))}
-                </ScrollView>
-            </View>
+</View>
         </View>
     );
 };
@@ -145,6 +224,8 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         marginTop: 36,
+        flexDirection: 'column', // Adjusted to column layout
+        padding: 16, // Added padding to container
     },
     header: {
         flex: 0.18,
@@ -180,16 +261,15 @@ const styles = StyleSheet.create({
         borderRadius: 16,
         flexDirection: 'row',
         alignItems: 'center',
-        position: 'absolute',
-        top: 72, // Adjusted to top position
-        left: 16, // Adjusted to left position
-        right: 16, // Adjusted to right position
-        zIndex: 2, // Ensure the search bar is above other elements
+        marginBottom: 16, // Added margin bottom
     },
     searchInput: {
         marginLeft: 8,
         flex: 1,
     },
+    recommendedCompaniesContainer: {
+        flex: 1, // Adjusted flex to take remaining space
+    }
 });
 
 export default Home;

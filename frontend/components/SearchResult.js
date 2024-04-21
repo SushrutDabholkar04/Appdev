@@ -1,34 +1,35 @@
-import { View, Text,StyleSheet } from 'react-native'
-import React from 'react'
+import { View, Text, StyleSheet,TouchableOpacity } from 'react-native';
+import React from 'react';
+import { useNavigation } from '@react-navigation/native';
 
-const SearchResult = ({results}) => {
+const SearchResult = ({ results }) => {
+
+  const navigation = useNavigation();
+  const handlePress = (result) => {
+    // Navigate to the Info screen with the selected result
+    navigation.navigate('Info', { result });
+  };
   return (
-    <View style={styles.Results} >
-       {results.map((result,id)=>{
-        return <Text key={id}>{result.companyName}</Text>
-       })}
+    <View style={styles.container}> 
+      {results.map((result, id) => {
+        return (
+          <TouchableOpacity key={id} onPress={() => handlePress(result)}>
+            <Text>{result.companyName}</Text>
+          </TouchableOpacity>
+        );
+      })}
     </View>
-  )
-}
+  );
+};
 
-const styles=StyleSheet.create({
- 
-    Results:{
-        width:100,
-        backgroundColor:'#ffffff',
-        display:'flex',
-        flexDirection:'column',
-        borderRadius:10,
-        marginTop:1,
-        maxHeight:300,
-         overflow:'scroll'
+const styles = StyleSheet.create({  
+  container: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
+    marginTop: 8, // Adjust this margin as needed
+    maxHeight: 300,
+    overflow: 'scroll',
+  },
+});
 
-
-
-    }
-
-})
-
-
-
-export default SearchResult
+export default SearchResult;
