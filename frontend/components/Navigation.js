@@ -1,20 +1,26 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import { useNavigation } from '@react-navigation/native';
 
 
 const Navigation = () => {
+  const navigation = useNavigation();
+
+    
    return (
     <View style={styles.container}>
      <TouchableOpacity>
-       <FontAwesome5 name="home"/>
+       <FontAwesome5 name="home" style={styles.iconStyle}/>
        <Text>Home</Text>
       </TouchableOpacity>
       <TouchableOpacity>
+       <FontAwesome5 name="bookmark" style={styles.iconStyle}/> 
        <Text>Bookmark</Text>
       </TouchableOpacity>
-      <TouchableOpacity>
-       <Text>Profile</Text>
+      <TouchableOpacity onPress={()=>navigation.navigate('Profile')}>
+       <FontAwesome5 name="user" style={styles.iconStyle}/> 
+       <Text >Profile</Text>
       </TouchableOpacity>
     </View>   
   );
@@ -24,7 +30,13 @@ const styles =StyleSheet.create({
     flexDirection: "row",
     margin:10,
     justifyContent: "space-between"
-  }
+  },
+  iconStyle:{
+    marginBottom:3,
+    alignSelf:"center",
+    fontSize:25,
+
+  },
 })
 
 

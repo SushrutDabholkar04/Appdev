@@ -61,7 +61,7 @@ async function saveSkillsToDatabase(skills) {
         // console.log(`Skill "${skillName}" already exists in the database.`);
       }
     }
-    console.log('Skills saved to database successfully.');
+    console.log('Skills saved to database successfully.');  
   } catch (error) {
     console.error('Error saving skills to database:', error);
   }

@@ -41,22 +41,25 @@ const Home = ({ route, navigation }) => {
     const fetchCompanies = async () => {
         const options = {
             method: 'GET',
-            url: 'https://indeed12.p.rapidapi.com/companies/search',
+            url: 'https://jsearch.p.rapidapi.com/search',
             params: {
-                company_name: 'Microsoft'
+              query: 'Python developer in Texas, USA',
+              page: '1',
+              num_pages: '1'
             },
             headers: {
-                'X-RapidAPI-Key': '2e919a426dmsh3100cbe59a05659p1725e0jsne90fb62cbec1',
-                'X-RapidAPI-Host': 'indeed12.p.rapidapi.com'
+              'X-RapidAPI-Key': 'ab634b4853msh90f2ad65d56859dp1aab13jsn9fb8d6ef2fd1',
+              'X-RapidAPI-Host': 'jsearch.p.rapidapi.com'
             }
-        };
-
-        try {
-            const response = await axios.request(options);
-            setCompanies(response.data.hits);
-        } catch (error) {
-            console.error(error);
-        }
+          };
+          
+          try {
+              const response = await axios.request(options);
+            //   console.log(response.data);
+              setCompanies(response.data.data)
+          } catch (error) {
+              console.error(error);
+          }
     };
 
     const fetchCompanies2=async()=>{
@@ -150,8 +153,8 @@ const options = {
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <View style={{ marginLeft: 8 }}>
-                            <Text style={{ fontSize: 16, fontWeight: '600' }}>{company.name}</Text>
-                            <Text style={{ fontSize: 12, fontWeight: '400' }}>{company.locality}</Text>
+                            <Text style={{ fontSize: 16, fontWeight: '600' }}>{company.job_title}</Text>
+                            <Text style={{ fontSize: 12, fontWeight: '400' }}>{company.employer_name}</Text>
                         </View>
                     </View>
                     <Ionicons name='bookmark-outline' size={24} color='#000' />
