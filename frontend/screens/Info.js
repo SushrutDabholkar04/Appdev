@@ -2,10 +2,8 @@ import { View, Text, StyleSheet, Linking, ScrollView } from 'react-native';
 import React from 'react';
 
 const Info = ({ route }) => {
-    // Extracting the 'result' object from the route parameters
     const { result } = route.params;
 
-    // Function to handle opening the job posting URL
     const handleOpenUrl = () => {
         if (result.jobPostingUrl) {
             Linking.openURL(result.jobPostingUrl);

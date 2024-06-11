@@ -9,9 +9,9 @@ const Profile = () => {
         email: "john@example.com",
         // profilePicture: require('./profile.jpg'), // Provide the path to the profile picture
         bio: "Experienced software engineer with expertise in React Native development.",
-        skills: ["React Native", "JavaScript", "Node.js", "UI/UX Design"],
+        skills: ["React Native", "JavaScript", "Node.js", "UI/UX Design" ],
         education: [
-            { institution: "University of ABC", degree: "Bachelor of Science in Computer Science", duration: "2011 - 2015" },
+            {institution: "University of ABC", degree: "Bachelor of Science in Computer Science", duration: "2011 - 2015" },
         ],
         experience: [
             { company: "ABC Inc.", position: "Senior Software Engineer", duration: "2018 - Present" },
@@ -178,27 +178,6 @@ const styles = StyleSheet.create({
     },
     duration: {
         color: '#999999',
-    },
-});
-
-export default Profile;
-
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-
-const Profile = () => {
-    return (
-        <View style={styles.container}>
-            <Text>This is your profile page</Text>
-        </View>
-    );
-};
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
     },
 });
 

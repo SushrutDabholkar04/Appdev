@@ -6,8 +6,11 @@ const csv = require('csv-parser');
 const Skill = require('./models/Skills');
 const userRoutes = require('./routes/user');
 const skillRoutes = require('./routes/skillRoutes');
-
+const cors = require('cors');
 const app = express();
+
+app.use(express.json());
+app.use(cors());
 
 app.use(express.json());
 
@@ -50,15 +53,11 @@ async function saveSkillsToDatabase(skills) {
         console.log('Skipping empty skill name.');
         continue;
       }
-      // Check if the skill already exists in the database
       const existingSkill = await Skill.findOne({ name: skillName });
       if (!existingSkill) {
-        // If the skill doesn't exist, create a new Skill document and save it to the database
         const skill = new Skill({ name: skillName });
         await skill.save();
-        // console.log(`Skill "${skillName}" saved to database.`);
       } else {
-        // console.log(`Skill "${skillName}" already exists in the database.`);
       }
     }
     console.log('Skills saved to database successfully.');

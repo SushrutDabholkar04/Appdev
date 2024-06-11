@@ -4,12 +4,38 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import axios from 'axios';
 import SearchResult from '../components/SearchResult';
 import Navigation from '../components/Navigation';
+import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const Home = ({ route, navigation }) => {
+
+const Home = ({ route}) => {
     const [companies, setCompanies] = useState([]);
    const [input,setInput]=useState("")
    const [results,setResults]=useState([])
    const [companies1,setCompanies1]=useState([])
+
+   const [name, setName] = useState('');
+   const [email, setEmail] = useState('');
+
+   useEffect(() => {
+    const getLocalStorageData = async () => {
+        try {
+            let data = await AsyncStorage.getItem('@auth');
+            console.log("Local storage Data =", data);
+            if (data) {
+                const { name, email } = JSON.parse(data);
+        setName(name);
+        setEmail(email);
+                console.log("name",name);
+            }
+        } catch (error) {
+            console.error("Error retrieving data from AsyncStorage:", error);
+        }
+    }
+
+    getLocalStorageData();
+}, []);
+
    const searchCompanies = async () => {
     const options = {
         method: 'GET',
@@ -31,7 +57,7 @@ const Home = ({ route, navigation }) => {
         const filteredResults = obj.filter((company) => {
             return company.companyName && company.companyName.toLowerCase().startsWith(input.toLowerCase()) ;
         });
-        console.log(filteredResults); // Log company names
+        // console.log(filteredResults); 
         setResults(filteredResults); // Set the results state here
       } catch (error) {
           console.error(error);
@@ -66,18 +92,22 @@ const Home = ({ route, navigation }) => {
         
 const options = {
     method: 'GET',
-    url: 'https://indeed12.p.rapidapi.com/company/Ubisoft/jobs',
-    params: {start: '1'},
+    url: 'https://indeed-jobs-api.p.rapidapi.com/indeed-us/',
+    params: {
+      offset: '0',
+      keyword: 'python',
+      location: 'california'
+    },
     headers: {
-      'X-RapidAPI-Key': '2e919a426dmsh3100cbe59a05659p1725e0jsne90fb62cbec1',
-      'X-RapidAPI-Host': 'indeed12.p.rapidapi.com'
+     'x-rapidapi-key': '2e919a426dmsh3100cbe59a05659p1725e0jsne90fb62cbec1',
+    'x-rapidapi-host': 'indeed-jobs-api.p.rapidapi.com'
     }
   };
   
   try {
       const response = await axios.request(options);
       console.log(response.data);
-      setCompanies1(response.data.hits)
+      setCompanies1(response.data)
   } catch (error) {
       console.error(error);
   }
@@ -97,6 +127,15 @@ const options = {
     useEffect(()=>{
         fetchCompanies2()
     },[])
+
+    const navigation = useNavigation();
+    const handlePress = (companies) => {
+      navigation.navigate('Info1', {result:companies});
+    };  
+    const handlePress1 = (companies1) => {
+      navigation.navigate('Info2', {result:companies1});
+    };
+
 
 
 
@@ -125,7 +164,7 @@ const options = {
             <View style={styles.header}>
                 <View style={styles.greetingContainer}>
                     <Text style={styles.greetingText}>Hello,</Text>
-                    <Text style={styles.userName}>John Doe</Text>
+                    <Text style={styles.userName}>{name}</Text>
                 </View>
                 <Ionicons name='notifications-outline' size={22} color='#FFF' style={styles.bellIcon} />
             </View>
@@ -139,17 +178,18 @@ const options = {
                 key={company.id}
                 style={{
                     backgroundColor: '#FFF',
-                    padding: 8, // Decreased padding
+                    padding: 8, 
                     borderRadius: 16,
-                    width: 250, // Adjusted width
+                    width: 250, 
                     marginRight: 16,
-                    flexDirection: 'column', // Make the container a column
-                    justifyContent: 'flex-start', // Align children at the start vertically
-                    height:200
-                
+                    flexDirection: 'column', 
+                    justifyContent: 'flex-start', 
+                    height:200,
                 }}
+                onPress={() => handlePress(company)}
+
             >
-                {/* Company Information */}
+          
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <View style={{ marginLeft: 8 }}>
@@ -160,11 +200,11 @@ const options = {
                     <Ionicons name='bookmark-outline' size={24} color='#000' />
                 </View>
             
-                {/* Job Information */}
+     
                 <Text style={{ marginTop: 12, fontSize: 16, fontWeight: '600' }}>company rank :{company.rank}</Text>
                 <Text style={{ fontSize: 12, fontWeight: '400' }}>Senior • Remote • Fulltime</Text>
             
-                {/* Apply Now Button */}
+             
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12, justifyContent: 'space-between' }}>
                     <TouchableOpacity style={{ backgroundColor: '#3F6CDF', padding: 8, borderRadius: 16 }}>
                         <Text style={{ color: '#FFF', fontSize: 14 }}>Apply Now</Text>
@@ -180,30 +220,31 @@ const options = {
                 key={company.id}
                 style={{
                     backgroundColor: '#FFF',
-                    padding: 8, // Decreased padding
+                    padding: 8, 
                     borderRadius: 16,
-                    width: 250, // Adjusted width
+                    width: 250, 
                     marginRight: 16,
-                    flexDirection: 'column', // Make the container a column
-                    justifyContent: 'flex-start', // Align children at the start vertically
+                    flexDirection: 'column', 
+                    justifyContent: 'flex-start', 
                     height:200,
                     marginTop:20
-                
+                  
                 }}
+                onPress={() => handlePress1(company)}
             >
                 {/* Company Information */}
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <View style={{ marginLeft: 8 }}>
-                            <Text style={{ fontSize: 16, fontWeight: '600' }}>{company.title}</Text>
-                            <Text style={{ fontSize: 12, fontWeight: '400' }}>{company.locality}</Text>
+                            <Text style={{ fontSize: 16, fontWeight: '600' }}>{company.company_name}</Text>
+                            <Text style={{ fontSize: 12, fontWeight: '400' }}>{company.job_title}</Text>
                         </View>
                     </View>
                     <Ionicons name='bookmark-outline' size={24} color='#000' />
                 </View>
             
                 {/* Job Information */}
-                <Text style={{ marginTop: 12, fontSize: 16, fontWeight: '600' }}>Location :{company.location}</Text>
+                <Text style={{ marginTop: 12, fontSize: 16, fontWeight: '600' }}>Location :{company.job_location}</Text>
                 <Text style={{ fontSize: 12, fontWeight: '400' }}>Senior • Remote • Fulltime</Text>
             
                 {/* Apply Now Button */}

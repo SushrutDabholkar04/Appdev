@@ -1,5 +1,5 @@
 import { View, Text,StyleSheet, Alert } from 'react-native'
-import {React,useState} from 'react'
+import {React,useState, useEffect } from 'react'
 import InputBox from '../../components/inputBox';
 import SubmitButton from '../../components/SubmitButton';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -8,38 +8,48 @@ const Login = ({navigation}) => {
   
     const [email,setEmail]=useState('');
     const [password,setPassword]=useState('');  
+    const [name, setName] = useState('');
+ 
 
+    useEffect(() => {
+      getLocalStorageData();
+    }, []);
   
-    const handleSubmit=async ()=>{
-      try{
-      
-         if( !email || !password){
-         
-          return Alert.alert("Please fill all the fields")
-         }
-         console.log('Login data=',{email,password})
-     
-         const {data}=await axios.post('http://192.168.1.104:6000/api/user/login',{ email,password})
-        alert(data )
-        await AsyncStorage.setItem('@auth', JSON.stringify(data));
-
-        Alert.alert("Login successfull");
+  
+    const handleSubmit = async () => {
+      try {
+        if (!email || !password) {
+          return Alert.alert("Please fill all the fields");
+        }
+    
+        const { data } = await axios.post('http://192.168.1.104:5000/api/user/login', { email, password });
+        await AsyncStorage.setItem('@auth', JSON.stringify({ email, name: data.name, token: data.token }));
+    
+        Alert.alert("Login successful");
         navigation.navigate('Home');
-      }
-      catch(error){
-        if (error.response && error.response.data && error.response.data.error === "Email incorrect" || "Incorrect password") {
-   
+      } catch (error) {
+        if (error.response && error.response.data && (error.response.data.error === "Email incorrect" || error.response.data.error === "Incorrect password")) {
           return Alert.alert("Incorrect Email or password");
         }
       }
-    }
+    };
 
-    const getLocalStorageData=async ()=>{
-let data=await AsyncStorage.getItem('@auth')
-console.log("Local storage Data=",data)
-    }
+    const getLocalStorageData = async () => {
+      try {
+        const data = await AsyncStorage.getItem('@auth');
+        if (data) {
+          const { name, email } = JSON.parse(data);
+          setName(name);
+          setEmail(email);
+        }
+      } catch (error) {
+        console.error('Error reading data from AsyncStorage:', error);
+      }
+    };
 
-    getLocalStorageData();
+    useEffect(() => {
+      getLocalStorageData();
+    }, []);
     return (
       <View  style={styles.container}>
         <Text style={styles.pageTitle}>Login</Text>

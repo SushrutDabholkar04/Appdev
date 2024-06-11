@@ -16,13 +16,17 @@ const UserSchema = new Schema(
       type: String,
       required: true,
     },
+    name: {
+      type: String,
+      required: true,
+    },
 
   },
   { timestamps: true }
 );
 
-UserSchema.statics.signup = async function (email, password) {
-  if (!email || !password ) {
+UserSchema.statics.signup = async function (email, password,name) {
+  if (!email || !password ||!name) {
     throw Error("All fields must be filled");
   }
   if (!validator.isEmail(email)) {
@@ -37,7 +41,7 @@ UserSchema.statics.signup = async function (email, password) {
   const salt = await bcrypt.genSalt(10);
   const hash = await bcrypt.hash(password, salt);
 
-  const user = await this.create({ email, password: hash });
+  const user = await this.create({ email, password: hash ,name});
 
   return {user,message: "Registered successfully"};
 };

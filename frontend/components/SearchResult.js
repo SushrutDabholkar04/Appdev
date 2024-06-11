@@ -6,7 +6,6 @@ const SearchResult = ({ results }) => {
 
   const navigation = useNavigation();
   const handlePress = (result) => {
-    // Navigate to the Info screen with the selected result
     navigation.navigate('Info', { result });
   };
   return (
