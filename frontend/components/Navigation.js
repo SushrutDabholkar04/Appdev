@@ -10,11 +10,11 @@ const Navigation = () => {
     
    return (
     <View style={styles.container}>
-     <TouchableOpacity>
+     <TouchableOpacity onPress={()=>navigation.navigate('Home')}>
        <FontAwesome5 name="home" style={styles.iconStyle}/>
        <Text>Home</Text>
       </TouchableOpacity>
-      <TouchableOpacity>
+      <TouchableOpacity onPress={()=>navigation.navigate('Bookmark')}>
        <FontAwesome5 name="bookmark" style={styles.iconStyle}/> 
        <Text>Bookmark</Text>
       </TouchableOpacity>

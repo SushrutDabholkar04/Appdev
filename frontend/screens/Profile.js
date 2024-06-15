@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Navigation from '../components/Navigation';
 
 const Profile = () => {
     // Dummy user data
     const user = {
-        name: "John Doe",
-        email: "john@example.com",
         // profilePicture: require('./profile.jpg'), // Provide the path to the profile picture
         bio: "Experienced software engineer with expertise in React Native development.",
         skills: ["React Native", "JavaScript", "Node.js", "UI/UX Design" ],
@@ -23,74 +23,100 @@ const Profile = () => {
     const [showSkills, setShowSkills] = useState(false);
     const [showEducation, setShowEducation] = useState(false);
     const [showExperience, setShowExperience] = useState(false);
+    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
+
+    useEffect(() => {
+        const getLocalStorageData = async () => {
+            try {
+                let data = await AsyncStorage.getItem('@auth');
+                console.log("Local storage Data =", data);
+                if (data) {
+                    const { name, email } = JSON.parse(data);
+                    setName(name);
+                    setEmail(email);
+                    console.log("name", name);
+                }
+            } catch (error) {
+                console.error("Error retrieving data from AsyncStorage:", error);
+            }
+        };
+
+        getLocalStorageData();
+    }, []);
 
     return (
         <View style={styles.container}>
-            <View style={styles.header}>
-                <Image source={user.profilePicture} style={styles.profileImage} />
-                <Text style={styles.name}>{user.name}</Text>
-                <Text style={styles.email}>{user.email}</Text>
-            </View>
-            <TouchableOpacity style={styles.section} onPress={() => setShowBio(!showBio)}>
-                <View style={styles.sectionHeader}>
-                    <Text style={styles.sectionTitle}>• Bio</Text>
-                    <AntDesign name={showBio ? "up" : "down"} size={24} color="#000000" />
+            <View style={styles.content}>
+                <View style={styles.header}>
+                    <Image source={user.profilePicture} style={styles.profileImage} />
+                    <Text style={styles.name}>{name}</Text>
+                    <Text style={styles.email}>{email}</Text>
                 </View>
-                {showBio && (
-                    <View style={styles.box}>
-                        <Text style={styles.bio}>{user.bio}</Text>
+                <TouchableOpacity style={styles.section} onPress={() => setShowBio(!showBio)}>
+                    <View style={styles.sectionHeader}>
+                        <Text style={styles.sectionTitle}>• Bio</Text>
+                        <AntDesign name={showBio ? "up" : "down"} size={24} color="#000000" />
                     </View>
-                )}
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.section} onPress={() => setShowSkills(!showSkills)}>
-                <View style={styles.sectionHeader}>
-                    <Text style={styles.sectionTitle}>• Skills</Text>
-                    <AntDesign name={showSkills ? "up" : "down"} size={24} color="#000000" />
-                </View>
-                {showSkills && (
-                    <View style={styles.box}>
-                        <View style={styles.skillContainer}>
-                            {user.skills.map((skill, index) => (
-                                <Text key={index} style={styles.skill}>{skill}</Text>
+                    {showBio && (
+                        <View style={styles.box}>
+                            <Text style={styles.bio}>{user.bio}</Text>
+                        </View>
+                    )}
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.section} onPress={() => setShowSkills(!showSkills)}>
+                    <View style={styles.sectionHeader}>
+                        <Text style={styles.sectionTitle}>• Skills</Text>
+                        <AntDesign name={showSkills ? "up" : "down"} size={24} color="#000000" />
+                    </View>
+                    {showSkills && (
+                        <View style={styles.box}>
+                            <View style={styles.skillContainer}>
+                                {user.skills.map((skill, index) => (
+                                    <Text key={index} style={styles.skill}>{skill}</Text>
+                                ))}
+                            </View>
+                        </View>
+                    )}
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.section} onPress={() => setShowEducation(!showEducation)}>
+                    <View style={styles.sectionHeader}>
+                        <Text style={styles.sectionTitle}>• Education</Text>
+                        <AntDesign name={showEducation ? "up" : "down"} size={24} color="#000000" />
+                    </View>
+                    {showEducation && (
+                        <View style={styles.box}>
+                            {user.education.map((edu, index) => (
+                                <View key={index}>
+                                    <Text style={styles.institution}>{edu.institution}</Text>
+                                    <Text style={styles.degree}>{edu.degree}</Text>
+                                    <Text style={styles.duration}>{edu.duration}</Text>
+                                </View>
                             ))}
                         </View>
+                    )}
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.section} onPress={() => setShowExperience(!showExperience)}>
+                    <View style={styles.sectionHeader}>
+                        <Text style={styles.sectionTitle}>• Experience</Text>
+                        <AntDesign name={showExperience ? "up" : "down"} size={24} color="#000000" />
                     </View>
-                )}
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.section} onPress={() => setShowEducation(!showEducation)}>
-                <View style={styles.sectionHeader}>
-                    <Text style={styles.sectionTitle}>• Education</Text>
-                    <AntDesign name={showEducation ? "up" : "down"} size={24} color="#000000" />
-                </View>
-                {showEducation && (
-                    <View style={styles.box}>
-                        {user.education.map((edu, index) => (
-                            <View key={index}>
-                                <Text style={styles.institution}>{edu.institution}</Text>
-                                <Text style={styles.degree}>{edu.degree}</Text>
-                                <Text style={styles.duration}>{edu.duration}</Text>
-                            </View>
-                        ))}
-                    </View>
-                )}
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.section} onPress={() => setShowExperience(!showExperience)}>
-                <View style={styles.sectionHeader}>
-                    <Text style={styles.sectionTitle}>• Experience</Text>
-                    <AntDesign name={showExperience ? "up" : "down"} size={24} color="#000000" />
-                </View>
-                {showExperience && (
-                    <View style={styles.box}>
-                        {user.experience.map((exp, index) => (
-                            <View key={index}>
-                                <Text style={styles.company}>{exp.company}</Text>
-                                <Text style={styles.position}>{exp.position}</Text>
-                                <Text style={styles.duration}>{exp.duration}</Text>
-                            </View>
-                        ))}
-                    </View>
-                )}
-            </TouchableOpacity>
+                    {showExperience && (
+                        <View style={styles.box}>
+                            {user.experience.map((exp, index) => (
+                                <View key={index}>
+                                    <Text style={styles.company}>{exp.company}</Text>
+                                    <Text style={styles.position}>{exp.position}</Text>
+                                    <Text style={styles.duration}>{exp.duration}</Text>
+                                </View>
+                            ))}
+                        </View>
+                    )}
+                </TouchableOpacity>
+            </View>
+            <View style={styles.bottom}>
+                <Navigation />
+            </View>
         </View>
     );
 };
@@ -99,6 +125,9 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#FFFFFF',
+    },
+    content: {
+        flex: 1,
         padding: 20,
     },
     header: {
@@ -178,6 +207,12 @@ const styles = StyleSheet.create({
     },
     duration: {
         color: '#999999',
+    },
+    bottom: {
+        position: 'absolute',
+        bottom: 30 ,
+        left: 0,
+        right: 0,
     },
 });
 

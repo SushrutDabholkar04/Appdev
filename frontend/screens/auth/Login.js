@@ -22,7 +22,7 @@ const Login = ({navigation}) => {
           return Alert.alert("Please fill all the fields");
         }
     
-        const { data } = await axios.post('http://192.168.1.104:5000/api/user/login', { email, password });
+        const { data } = await axios.post('http://192.168.0.111:5000/api/user/login', { email, password });
         await AsyncStorage.setItem('@auth', JSON.stringify({ email, name: data.name, token: data.token }));
     
         Alert.alert("Login successful");

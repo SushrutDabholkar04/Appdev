@@ -21,7 +21,7 @@ const Register = ({ navigation }) => {
       }
       console.log('Register data=', { email, password, name });
 
-      const { data } = await axios.post('http://192.168.1.104:5000/api/user/signup', { email, password, name });
+      const { data } = await axios.post('http://192.168.0.111:5000/api/user/signup', { email, password, name });
       console.log(data);
       await AsyncStorage.setItem('@auth', JSON.stringify({ email, name, token: data.token }));
       Alert.alert('Registered successfully');
