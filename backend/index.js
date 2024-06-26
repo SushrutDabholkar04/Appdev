@@ -1,77 +1,76 @@
-// index.js
 const express = require('express');
 const mongoose = require('mongoose');
 const fs = require('fs');
 const csv = require('csv-parser');
-const Skill = require('./models/Skills');
 const userRoutes = require('./routes/user');
 const skillRoutes = require('./routes/skillRoutes');
+const profileRoutes = require('./routes/profileRoutes');
 const cors = require('cors');
-const app = express();
+require('dotenv').config();
 
+const app = express();
 app.use(express.json());
 app.use(cors());
 
-app.use(express.json());
-
 // Connect to MongoDB database
 mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
+    useNewUrlParser: true,
+    useUnifiedTopology: true
 })
-.then(() => {
-  console.log('Connected to MongoDB');
-  // Import skills from CSV and save to database
-  importSkillsFromCSV();
-})
-.catch(error => {
-  console.error('Error connecting to MongoDB:', error);
-});
-
-// CSV handling function
-function importSkillsFromCSV() {
-  const skills = [];
-  fs.createReadStream('skills_counts.csv')
-    .pipe(csv())
-    .on('data', (row) => {
-      const skillName = row.skill;
-      skills.push(skillName);
+    .then(() => {
+        console.log('Connected to MongoDB');
+        // Optionally import skills from CSV and save to database
+        // importSkillsFromCSV();
     })
-    .on('end', async () => {
-      console.log('CSV file successfully processed.');
-      // console.log('Skills:', skills);
-      await saveSkillsToDatabase(skills);
+    .catch(error => {
+        console.error('Error connecting to MongoDB:', error);
     });
+
+// Function to import skills from CSV
+function importSkillsFromCSV() {
+    const skills = [];
+    fs.createReadStream('skills.csv')
+        .pipe(csv())
+        .on('data', (row) => {
+            const skillName = row.skill;
+            skills.push(skillName);
+        })
+        .on('end', async () => {
+            console.log('CSV file processed.');
+            // Save skills to database
+            await saveSkillsToDatabase(skills);
+        });
 }
 
 // Function to save skills to the database
 async function saveSkillsToDatabase(skills) {
-  try {
-    for (const skillName of skills) {
-      // Skip empty skill names
-      if (!skillName) {
-        console.log('Skipping empty skill name.');
-        continue;
-      }
-      const existingSkill = await Skill.findOne({ name: skillName });
-      if (!existingSkill) {
-        const skill = new Skill({ name: skillName });
-        await skill.save();
-      } else {
-      }
+    try {
+        for (const skillName of skills) {
+            // Skip empty skill names
+            if (!skillName) {
+                console.log('Skipping empty skill name.');
+                continue;
+            }
+            // Check if skill already exists
+            const existingSkill = await Skill.findOne({ name: skillName });
+            if (!existingSkill) {
+                const skill = new Skill({ name: skillName });
+                await skill.save();
+            }
+        }
+        console.log('Skills saved to database successfully.');
+    } catch (error) {
+        console.error('Error saving skills to database:', error);
     }
-    console.log('Skills saved to database successfully.');
-  } catch (error) {
-    console.error('Error saving skills to database:', error);
-  }
 }
 
 // Middleware and routes setup
 app.use('/api/user', userRoutes);
 app.use('/api/skills', skillRoutes);
+app.use('/api/profile', profileRoutes);
 
 // Start the server
-const PORT = process.env.PORT ;
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+    console.log(`Server is running on port ${PORT}`);
 });

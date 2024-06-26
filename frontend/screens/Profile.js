@@ -1,32 +1,39 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Navigation from '../components/Navigation';
 
 const Profile = () => {
-    // Dummy user data
-    const user = {
-        // profilePicture: require('./profile.jpg'), // Provide the path to the profile picture
-        bio: "Experienced software engineer with expertise in React Native development.",
-        skills: ["React Native", "JavaScript", "Node.js", "UI/UX Design" ],
-        education: [
-            {institution: "University of ABC", degree: "Bachelor of Science in Computer Science", duration: "2011 - 2015" },
-        ],
-        experience: [
-            { company: "ABC Inc.", position: "Senior Software Engineer", duration: "2018 - Present" },
-            { company: "XYZ Corp.", position: "Software Developer", duration: "2015 - 2018" },
-        ],
-    };
-
+    const [profileData, setProfileData] = useState(null);
     const [showBio, setShowBio] = useState(false);
-    const [showSkills, setShowSkills] = useState(false);
     const [showEducation, setShowEducation] = useState(false);
     const [showExperience, setShowExperience] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
 
     useEffect(() => {
+        const fetchProfileData = async () => {
+            try {
+                const token = await AsyncStorage.getItem('@auth_token'); // Retrieve auth token from AsyncStorage
+                const response = await fetch('https://your-api-url/profile', {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+                if (!response.ok) {
+                    throw new Error('Failed to fetch profile data');
+                }
+                const profile = await response.json();
+                setProfileData(profile);
+                setLoading(false);
+            } catch (error) {
+                console.error('Error fetching profile data:', error);
+                setLoading(false);
+            }
+        };
+
         const getLocalStorageData = async () => {
             try {
                 let data = await AsyncStorage.getItem('@auth');
@@ -42,14 +49,23 @@ const Profile = () => {
             }
         };
 
+        fetchProfileData();
         getLocalStorageData();
     }, []);
+
+    if (loading) {
+        return (
+            <View style={[styles.container, styles.loadingContainer]}>
+                <ActivityIndicator size="large" color="#007BFF" />
+            </View>
+        );
+    }
 
     return (
         <View style={styles.container}>
             <View style={styles.content}>
                 <View style={styles.header}>
-                    <Image source={user.profilePicture} style={styles.profileImage} />
+                    <Image source={require('./profile.jpg')} style={styles.profileImage} />
                     <Text style={styles.name}>{name}</Text>
                     <Text style={styles.email}>{email}</Text>
                 </View>
@@ -60,22 +76,7 @@ const Profile = () => {
                     </View>
                     {showBio && (
                         <View style={styles.box}>
-                            <Text style={styles.bio}>{user.bio}</Text>
-                        </View>
-                    )}
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.section} onPress={() => setShowSkills(!showSkills)}>
-                    <View style={styles.sectionHeader}>
-                        <Text style={styles.sectionTitle}>• Skills</Text>
-                        <AntDesign name={showSkills ? "up" : "down"} size={24} color="#000000" />
-                    </View>
-                    {showSkills && (
-                        <View style={styles.box}>
-                            <View style={styles.skillContainer}>
-                                {user.skills.map((skill, index) => (
-                                    <Text key={index} style={styles.skill}>{skill}</Text>
-                                ))}
-                            </View>
+                            <Text style={styles.bio}>{profileData?.bio}</Text>
                         </View>
                     )}
                 </TouchableOpacity>
@@ -86,7 +87,7 @@ const Profile = () => {
                     </View>
                     {showEducation && (
                         <View style={styles.box}>
-                            {user.education.map((edu, index) => (
+                            {profileData?.education.map((edu, index) => (
                                 <View key={index}>
                                     <Text style={styles.institution}>{edu.institution}</Text>
                                     <Text style={styles.degree}>{edu.degree}</Text>
@@ -103,7 +104,7 @@ const Profile = () => {
                     </View>
                     {showExperience && (
                         <View style={styles.box}>
-                            {user.experience.map((exp, index) => (
+                            {profileData?.experience.map((exp, index) => (
                                 <View key={index}>
                                     <Text style={styles.company}>{exp.company}</Text>
                                     <Text style={styles.position}>{exp.position}</Text>
@@ -125,6 +126,10 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#FFFFFF',
+    },
+    loadingContainer: {
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     content: {
         flex: 1,
@@ -173,19 +178,6 @@ const styles = StyleSheet.create({
     bio: {
         fontSize: 16,
         color: '#333333',
-    },
-    skillContainer: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-    },
-    skill: {
-        backgroundColor: '#007BFF',
-        color: '#FFFFFF',
-        paddingVertical: 5,
-        paddingHorizontal: 10,
-        marginRight: 10,
-        marginBottom: 10,
-        borderRadius: 5,
     },
     institution: {
         fontSize: 18,
